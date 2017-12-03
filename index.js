@@ -3,7 +3,7 @@ const zipLib = require('node-zip');
 
 const pathToRoms = `D:/games/roms/Super Nintendo Entertainment System Emulator & ROMs (844 Games)-KaN1vE/ROMS (Games)/SNES`;
 const pathToTest = `D:/dev/test`;
-const inputPath = pathToTest; // path to original files
+const inputPath = pathToRoms; // path to original files
 const outputPath = `D:/games/roms/snes`; // final path of files
 const tempPath = `./temp`; // temp working directory
 
@@ -16,6 +16,7 @@ function init() {
             console.log('Rename complete');
             zipRoms().then(() => {
                 console.log('Zipping complete');
+                cleanUp().then(() => console.log('Process complete'));
             });
         });
     });
@@ -41,8 +42,8 @@ function renameRoms() {
     return readFilesInFolder(tempPath).then(files => {
         console.log('Renaming files...');
         files.forEach(file => {
-            
-            let extension = file.match(/\.zip/) || file.match(/\.smc/);
+
+            let extension = file.match(/\.zip/) || file.match(/\.smc/) || '';
 
             let newName = file
                 .replace(/\(U\)/, '') // strip (U)
@@ -81,7 +82,25 @@ function zipRoms() {
 
             resolve();
         });
-    })
+    });
+}
+
+function cleanUp() {
+    return readFilesInFolder(outputPath).then(files => {
+        
+        files.forEach(file => {
+            ('Cleaning up...');
+            if (!/.zip/.test(file)) {
+                fs.unlinkSync(outputPath + '/' + file);
+            }
+        });
+
+        // resolve promise once loop is complete
+        return new Promise((resolve, reject) => {
+
+            resolve();
+        });
+    });
 }
 
 function readFilesInFolder(pathToRead) {
@@ -91,6 +110,6 @@ function readFilesInFolder(pathToRead) {
             if (err) reject(err);
             else resolve(files);
         });
-    })
+    });
 }
 
