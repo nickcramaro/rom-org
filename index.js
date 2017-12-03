@@ -41,12 +41,16 @@ function renameRoms() {
     return readFilesInFolder(tempPath).then(files => {
         console.log('Renaming files...');
         files.forEach(file => {
+            
+            let extension = file.match(/\.zip/) || file.match(/\.smc/);
+
             let newName = file
                 .replace(/\(U\)/, '') // strip (U)
                 .replace(/\[!\]/, '') // strip [!]
-                .replace(/\S(\s*?).zip/, ''); // strip whitespace
+                .replace(extension, '') // remove extension
+                .trim(); // remove whitespace
 
-            fs.renameSync(tempPath + '/' + file, outputPath + '/' + newName);
+            fs.renameSync(tempPath + '/' + file, outputPath + '/' + newName + extension);
             console.log('Renamed ', newName);
         });
 
